@@ -1,0 +1,23 @@
+package TracimAPI
+
+import "encoding/json"
+
+func (a *Api) Auth() error {
+	a.isAuth = false
+	data, err := json.Marshal(a.Credentials)
+	if err != nil {
+		return err
+	}
+	response, err := a.Request("POST", "/auth/login", data)
+	if err != nil {
+		return err
+	}
+	for _, cookie := range response.Cookies {
+		if cookie.Name == "session_key" {
+			a.Session = *cookie
+			break
+		}
+	}
+	a.isAuth = true
+	return nil
+}
