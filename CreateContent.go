@@ -11,7 +11,7 @@ type createContentData struct {
 	Label       string      `json:"label"`
 }
 
-func (a *Api) CreateContent(workspaceId int, tType, name string) error {
+func (a *Api) CreateContent(workspaceId, tType, name string) error {
 	contentData := createContentData{
 		ParentId:    nil,
 		ContentType: tType,
@@ -21,7 +21,7 @@ func (a *Api) CreateContent(workspaceId int, tType, name string) error {
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/workspaces/%d/contents", workspaceId)
+	endpoint := fmt.Sprintf("/workspaces/%s/contents", workspaceId)
 	_, err = a.Request("POST", endpoint, data)
 	if err != nil {
 		return err
