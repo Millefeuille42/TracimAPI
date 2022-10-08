@@ -10,7 +10,7 @@ type createCommentData struct {
 	ContentNamespace string `json:"content_namespace"`
 }
 
-func (a *Api) CreateComment(workspaceId, contentId int, text string) error {
+func (a *Api) CreateComment(workspaceId, contentId, text string) error {
 	commentData := createCommentData{
 		RawContent:       text,
 		ContentNamespace: "content",
@@ -19,7 +19,7 @@ func (a *Api) CreateComment(workspaceId, contentId int, text string) error {
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/workspaces/%d/contents/%d/comments", workspaceId, contentId)
+	endpoint := fmt.Sprintf("/workspaces/%s/contents/%s/comments", workspaceId, contentId)
 	_, err = a.Request("POST", endpoint, data)
 	if err != nil {
 		return err
