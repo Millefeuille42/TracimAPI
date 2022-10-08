@@ -27,7 +27,7 @@ func (a *Api) Request(method, endpoint string, data []byte) (Response, error) {
 			return Response{}, fmt.Errorf("auth - %s", err.Error())
 		}
 	}
-	url := fmt.Sprintf("%s/%s", a.Url, endpoint)
+	url := fmt.Sprintf("%s%s", a.Url, endpoint)
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, bytes.NewReader(data))
 	if err != nil {
