@@ -44,8 +44,6 @@ func (a *Api) Request(method, endpoint string, data []byte) (Response, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	fmt.Println(string(body))
-	//TODO set content type
 	if resp.StatusCode != 200 {
 		return Response{}, fmt.Errorf(resp.Status)
 	}
