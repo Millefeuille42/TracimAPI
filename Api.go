@@ -21,7 +21,7 @@ type Api struct {
 }
 
 func (a *Api) Request(method, endpoint string, data []byte) (Response, error) {
-	if !time.Now().Before(a.Session.Expires) {
+	if a.isAuth && !time.Now().Before(a.Session.Expires) {
 		err := a.Auth()
 		if err != nil {
 			return Response{}, fmt.Errorf("auth - %s", err.Error())
@@ -40,11 +40,14 @@ func (a *Api) Request(method, endpoint string, data []byte) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	fmt.Println(string(body))
+	//TODO set content type
 	if resp.StatusCode != 200 {
 		return Response{}, fmt.Errorf(resp.Status)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
 	if err != nil {
 		return Response{}, err
 	}
