@@ -2,6 +2,11 @@ package TracimAPI
 
 import "encoding/json"
 
+type T struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func (a *Api) Auth() error {
 	a.isAuth = false
 	data, err := json.Marshal(a.Credentials)

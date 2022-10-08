@@ -1,8 +1,8 @@
 package Config
 
 type Credentials struct {
-	Mail     string
-	Password string
+	Mail     string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Config struct {
