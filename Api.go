@@ -30,6 +30,7 @@ func (a *Api) Request(method, endpoint string, data []byte) (Response, error) {
 	url := fmt.Sprintf("%s%s", a.Url, endpoint)
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, bytes.NewReader(data))
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return Response{}, err
 	}
