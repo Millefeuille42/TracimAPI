@@ -3,7 +3,7 @@ package session
 import "encoding/json"
 
 type authResponse struct {
-	userID string `json:"user_Id"`
+	UserID string `json:"user_Id"`
 }
 
 // Auth authenticate client to the Tracim api
