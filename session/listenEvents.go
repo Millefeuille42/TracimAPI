@@ -9,8 +9,10 @@ import (
 	"time"
 )
 
+// TLMHandler is the function type for the handlers for TLMs, to be used with TLMSubscribe
 type TLMHandler func(s *Session, message *TracimLiveMessage)
 
+// TLMEvent is a parsed TLM with the Fields element as an interface for generic usage (see Tracim doc about TLMs)
 type TLMEvent struct {
 	EventId   int         `json:"event_id"`
 	EventType string      `json:"event_type"`
@@ -19,20 +21,27 @@ type TLMEvent struct {
 	Fields    interface{} `json:"fields"`
 }
 
+// TracimLiveMessage is a wrapper for a TLM, it also contains the EventStream event type and data
 type TracimLiveMessage struct {
-	Event      string
-	Data       string
+	// Event EventStream event type
+	Event string
+	// Data raw EventStream data
+	Data string
+	// DataParsed Parsed as TLMEvent EventStream data
 	DataParsed TLMEvent
 }
 
 const (
+	// TLMConnected event type used when connected to the EventStream
 	TLMConnected = "stream-open"
-	TLMMessage   = "message"
-	TLMError     = "error"
+	// TLMMessage event type used when receiving a TLM from the EventStream
+	TLMMessage = "message"
+	// TLMError event type used when for the error handler
+	TLMError = "error"
 )
 
-func (a *Session) hookToTLM(userId string) error {
-	req, err := a.GenerateRequest("GET", fmt.Sprintf("/users/%s/live_messages", userId), []byte(""))
+func (s *Session) hookToTLM() error {
+	req, err := s.GenerateRequest("GET", fmt.Sprintf("/users/%s/live_messages", s.userID), []byte(""))
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Connection", "keep-alive")
@@ -75,46 +84,48 @@ func (a *Session) hookToTLM(userId string) error {
 			Data:  strings.TrimSpace(splitMessage[1][len("data:"):]),
 		}
 
-		a.eventChannel <- event
+		s.eventChannel <- event
 	}
 }
 
-func (a *Session) SendError(err error) {
-	a.errorChannel <- err
+// SendError used to send error to custom error handler
+func (s *Session) SendError(err error) {
+	s.errorChannel <- err
 }
 
-func (a *Session) ListenEvents(userId string) {
+// ListenEvents Start listening to events, it is preferred to register handlers beforehand
+func (s *Session) ListenEvents() {
 	go func() {
-		err := a.hookToTLM(userId)
+		err := s.hookToTLM()
 		if err != nil {
-			a.SendError(err)
+			s.SendError(err)
 		}
 	}()
 
 	for {
 		select {
-		case TLM := <-a.eventChannel:
+		case TLM := <-s.eventChannel:
 			switch TLM.Event {
 			case TLMConnected:
-				if _, ok := a.eventHandler[TLMConnected]; ok {
-					a.eventHandler[TLMConnected](a, &TLM)
+				if _, ok := s.eventHandler[TLMConnected]; ok {
+					s.eventHandler[TLMConnected](s, &TLM)
 				}
 			case TLMMessage:
 				err := json.Unmarshal([]byte(TLM.Data), &TLM.DataParsed)
 				if err != nil {
-					a.SendError(err)
+					s.SendError(err)
 					continue
 				}
-				if _, ok := a.eventHandler[TLMMessage]; ok {
-					a.eventHandler[TLMMessage](a, &TLM)
+				if _, ok := s.eventHandler[TLMMessage]; ok {
+					s.eventHandler[TLMMessage](s, &TLM)
 				}
-				if _, ok := a.eventHandler[TLM.DataParsed.EventType]; ok {
-					a.eventHandler[TLM.DataParsed.EventType](a, &TLM)
+				if _, ok := s.eventHandler[TLM.DataParsed.EventType]; ok {
+					s.eventHandler[TLM.DataParsed.EventType](s, &TLM)
 				}
 			}
-		case err := <-a.errorChannel:
-			if _, ok := a.eventHandler[TLMError]; ok {
-				a.eventHandler[TLMError](a, &TracimLiveMessage{
+		case err := <-s.errorChannel:
+			if _, ok := s.eventHandler[TLMError]; ok {
+				s.eventHandler[TLMError](s, &TracimLiveMessage{
 					Event: TLMError,
 					Data:  err.Error(),
 				})
@@ -123,6 +134,8 @@ func (a *Session) ListenEvents(userId string) {
 	}
 }
 
-func (a *Session) TLMSubscribe(event string, handler TLMHandler) {
-	a.eventHandler[event] = handler
+// TLMSubscribe register a handler for a specific event
+// use any of the TLM* constants for EventStream events or any of the TLM event types (see Tracim doc about TLMs)
+func (s *Session) TLMSubscribe(event string, handler TLMHandler) {
+	s.eventHandler[event] = handler
 }

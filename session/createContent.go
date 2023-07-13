@@ -51,7 +51,7 @@ type createContentData struct {
 	Label       string      `json:"label"`
 }
 
-func (a *Session) CreateContent(workspaceId, tType, name string) (string, error) {
+func (s *Session) CreateContent(workspaceId, tType, name string) (string, error) {
 	contentData := createContentData{
 		ParentId:    nil,
 		ContentType: tType,
@@ -62,7 +62,7 @@ func (a *Session) CreateContent(workspaceId, tType, name string) (string, error)
 		return "", err
 	}
 	endpoint := fmt.Sprintf("/workspaces/%s/contents", workspaceId)
-	response, err := a.Request("POST", endpoint, data)
+	response, err := s.Request("POST", endpoint, data)
 	if err != nil {
 		return "", err
 	}

@@ -2,27 +2,35 @@ package session
 
 import "encoding/json"
 
-type T struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type authResponse struct {
+	userID string `json:"user_Id"`
 }
 
-func (a *Session) Auth() error {
-	a.isAuth = false
-	data, err := json.Marshal(a.Credentials)
+// Auth authenticate client to the Tracim api
+func (s *Session) Auth() error {
+	s.isAuth = false
+	data, err := json.Marshal(s.Credentials)
 	if err != nil {
 		return err
 	}
-	response, err := a.Request("POST", "/auth/login", data)
+	response, err := s.Request("POST", "/auth/login", data)
 	if err != nil {
 		return err
 	}
 	for _, cookie := range response.Cookies {
 		if cookie.Name == "session_key" {
-			a.Session = *cookie
+			s.Session = *cookie
 			break
 		}
 	}
-	a.isAuth = true
+
+	respData := authResponse{}
+	err = json.Unmarshal(response.DataBytes, &respData)
+	if err != nil {
+		return err
+	}
+
+	s.userID = respData.userID
+	s.isAuth = true
 	return nil
 }
