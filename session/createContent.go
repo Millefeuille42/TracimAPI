@@ -1,4 +1,4 @@
-package TracimAPI
+package session
 
 import (
 	"encoding/json"
@@ -51,7 +51,7 @@ type createContentData struct {
 	Label       string      `json:"label"`
 }
 
-func (a *Api) CreateContent(workspaceId, tType, name string) (string, error) {
+func (a *Session) CreateContent(workspaceId, tType, name string) (string, error) {
 	contentData := createContentData{
 		ParentId:    nil,
 		ContentType: tType,
@@ -67,7 +67,7 @@ func (a *Api) CreateContent(workspaceId, tType, name string) (string, error) {
 		return "", err
 	}
 	respData := createContentRespData{}
-	err = json.Unmarshal(response.Data, &respData)
+	err = json.Unmarshal(response.DataBytes, &respData)
 	if err != nil {
 		return "", err
 	}

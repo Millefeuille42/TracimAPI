@@ -1,4 +1,4 @@
-package TracimAPI
+package session
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ type createCommentData struct {
 	ContentNamespace string `json:"content_namespace"`
 }
 
-func (a *Api) CreateComment(workspaceId, contentId, text string) error {
+func (a *Session) CreateComment(workspaceId, contentId, text string) error {
 	commentData := createCommentData{
 		RawContent:       text,
 		ContentNamespace: "content",

@@ -1,4 +1,4 @@
-package TracimAPI
+package session
 
 import "encoding/json"
 
@@ -7,7 +7,7 @@ type T struct {
 	Password string `json:"password"`
 }
 
-func (a *Api) Auth() error {
+func (a *Session) Auth() error {
 	a.isAuth = false
 	data, err := json.Marshal(a.Credentials)
 	if err != nil {
