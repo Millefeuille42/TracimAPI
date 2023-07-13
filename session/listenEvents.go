@@ -2,6 +2,7 @@ package session
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -30,8 +31,8 @@ const (
 	TLMError     = "error"
 )
 
-func (a *Session) hookToTLM() error {
-	req, err := a.GenerateRequest("GET", "/users/340/live_messages", []byte(""))
+func (a *Session) hookToTLM(userId string) error {
+	req, err := a.GenerateRequest("GET", fmt.Sprintf("/users/%s/live_messages", userId), []byte(""))
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Connection", "keep-alive")
@@ -82,9 +83,9 @@ func (a *Session) SendError(err error) {
 	a.errorChannel <- err
 }
 
-func (a *Session) ListenEvents() {
+func (a *Session) ListenEvents(userId string) {
 	go func() {
-		err := a.hookToTLM()
+		err := a.hookToTLM(userId)
 		if err != nil {
 			a.SendError(err)
 		}
