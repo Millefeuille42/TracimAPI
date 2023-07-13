@@ -30,7 +30,7 @@ func (s *Session) Auth() error {
 		return err
 	}
 
-	s.userID = respData.userID
+	s.userID = respData.UserID
 	s.isAuth = true
 	return nil
 }
