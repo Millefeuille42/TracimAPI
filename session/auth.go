@@ -1,9 +1,12 @@
 package session
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type authResponse struct {
-	UserID string `json:"user_Id"`
+	UserID int `json:"user_Id"`
 }
 
 // Auth authenticate client to the Tracim api
@@ -30,7 +33,7 @@ func (s *Session) Auth() error {
 		return err
 	}
 
-	s.userID = respData.UserID
+	s.userID = fmt.Sprintf("%d", respData.UserID)
 	s.isAuth = true
 	return nil
 }
