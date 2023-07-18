@@ -33,7 +33,7 @@ func (s *Session) Auth() error {
 		return err
 	}
 
-	s.userID = fmt.Sprintf("%d", respData.UserID)
+	s.UserID = fmt.Sprintf("%d", respData.UserID)
 	s.isAuth = true
 	return nil
 }

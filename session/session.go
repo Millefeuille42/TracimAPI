@@ -22,7 +22,7 @@ type Session struct {
 	// config is the configuration for the api
 	config
 	isAuth bool
-	userID string
+	UserID string
 	// Session contains the session cookie
 	Session      http.Cookie
 	eventChannel chan TracimLiveMessage

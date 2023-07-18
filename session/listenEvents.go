@@ -41,7 +41,7 @@ const (
 )
 
 func (s *Session) hookToTLM() error {
-	req, err := s.GenerateRequest("GET", fmt.Sprintf("/users/%s/live_messages", s.userID), []byte(""))
+	req, err := s.GenerateRequest("GET", fmt.Sprintf("/users/%s/live_messages", s.UserID), []byte(""))
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Connection", "keep-alive")
